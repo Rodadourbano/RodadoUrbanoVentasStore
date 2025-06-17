@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Rodado Urbano Ventas Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f8f8f8; }
+        h1 { color: #333; }
+        .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; }
+        input, button { padding: 10px; margin: 5px 0; width: 100%; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
+        th { background-color: #eee; }
+        .totales { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Rodado Urbano Ventas Store</h1>
+
+    <h3>Agregar producto al stock</h3>
+    <input type="text" id="productoNombre" placeholder="Nombre del producto">
+    <input type="number" id="precioCompra" placeholder="Precio de compra">
+    <input type="number" id="precioVenta" placeholder="Precio de venta">
+    <button onclick="agregarProducto()">Agregar al stock</button>
+
+    <h3>Vender producto</h3>
+    <select id="productoVenta"></select>
+    <button onclick="registrarVenta()">Registrar venta</button>
+
+    <h3>Productos en stock</h3>
+    <table id="tablaStock">
+        <thead><tr><th>Producto</th><th>Compra</th><th>Venta</th></tr></thead>
+        <tbody></tbody>
+    </table>
+
+    <h3>Productos vendidos</h3>
+    <table id="tablaVentas">
+        <thead><tr><th>Producto</th><th>Ganancia</th></tr></thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="totales">
+        Ganancia total: $<span id="gananciaTotal">0</span>
+    </div>
+</div>
+
+<script>
+    const stock = [];
+    const ventas = [];
+    let gananciaTotal = 0;
+
+    function agregarProducto() {
+        const nombre = document.getElementById('productoNombre').value;
+        const compra = parseFloat(document.getElementById('precioCompra').value);
+        const venta = parseFloat(document.getElementById('precioVenta').value);
+
+        if (!nombre || isNaN(compra) || isNaN(venta)) return alert("Completa todos los campos.");
+
+        stock.push({ nombre, compra, venta });
+        actualizarTablas();
+        document.getElementById('productoNombre').value = '';
+        document.getElementById('precioCompra').value = '';
+        document.getElementById('precioVenta').value = '';
+    }
+
+    function registrarVenta() {
+        const select = document.getElementById('productoVenta');
+        const index = select.value;
+        if (index === '') return;
+
+        const producto = stock[index];
+        const ganancia = producto.venta - producto.compra;
+        ventas.push({ nombre: producto.nombre, ganancia });
+        gananciaTotal += ganancia;
+
+        stock.splice(index, 1);
+        actualizarTablas();
+    }
+
+    function actualizarTablas() {
+        const stockTable = document.getElementById('tablaStock').querySelector('tbody');
+        const ventasTable = document.getElementById('tablaVentas').querySelector('tbody');
+        const select = document.getElementById('productoVenta');
+
+        stockTable.innerHTML = '';
+        ventasTable.innerHTML = '';
+        select.innerHTML = '<option value="">-- Seleccionar --</option>';
+
+        stock.forEach((p, i) => {
+            stockTable.innerHTML += `<tr><td>${p.nombre}</td><td>$${p.compra}</td><td>$${p.venta}</td></tr>`;
+            select.innerHTML += `<option value="${i}">${p.nombre}</option>`;
+        });
+
+        ventas.forEach(v => {
+            ventasTable.innerHTML += `<tr><td>${v.nombre}</td><td>$${v.ganancia}</td></tr>`;
+        });
+
+        document.getElementById('gananciaTotal').textContent = gananciaTotal.toFixed(2);
+    }
+</script>
+</body>
+</html>
